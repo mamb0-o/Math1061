@@ -1,0 +1,101 @@
+---
+title: "Final Exam - Math 1061"
+instructor: "Winona Cordua-von Specht"
+date: "08/11/2022"
+output: html_document
+---
+# Name of Student: Type your name and Student number here.
+
+## Instructions:
+
+For full marks:
+a.	All work must be shown for full marks
+b.	Answers must be in a single file R Markdown Document (.Rmd).
+c.	You will be required to provide an explanation of your code.
+
+####################################################################################
+
+# Question 1 [10 marks]	
+
+a) Use a Monte Carlo (Simulation) method as seen in the previous labs to find the area inside the curve, $(x^2+y)^2-4*(x^2-y^2)=0$. Also plot the area.
+```{r}
+
+```
+
+b) Carefully explain below how your code works to find this area.Give your answer on the exam sheet provided. Alternatively, you can add comments to the code above to explain what you are doing.
+
+
+####################################################################################
+
+# Question 2 [10 marks]	
+
+Create a simulation of a two-dimensional random walk i.e. motion can be in both x and y directions. 
+
+•	Assume equal probability for left and right motion(x-axis) and also for up and down motion (y-axis).
+•	Start all random walks at the origin (0,0)
+•	Assume the y-motion is independent of the x-motion.
+
+a)	Create a plot (and table) showing the path of a random walk of length 10. 
+```{r}
+
+```
+
+b)	Create a plot showing the final position of 10000 random walks of length 50 each. 
+```{r}
+
+```
+
+c)	Explain in full sentences what you observe about the final positions and how they seem to be positioned around the origin? 
+
+d)	Explain how your code does the calculation?
+
+####################################################################################
+
+# Question 3 [10 marks]	
+
+The internet uses packets of information to transmit data between sites/servers. Each successive packet does not have to follow the same route to the final computer, which can mean that a packet can in principle, arrive before the preceding packet due to different delays at different points in the network.  
+ 
+Each node in the network is labelled with a letter and at each node the packets experience a random delay (caused by random network traffic). We can assume the delays follow a Normal distribution with different means and standard deviations. The values of these statistics are given in the table below:
+
+Delay parameters in microseconds
+Node  |	Mean |	Standard deviation
+------|------|--------------------
+ A	  | 1    |  0.22
+ B	  | 2.3	 |  0.4
+ C	  | 0.9  |  0.32
+ D	  | 2 	 |  0.53
+ 
+•	All values are in microseconds. 
+•	The second packet is sent 1 microsecond after the first packet is sent. 
+•	The packets experience no other delays than those Normally distributed ones. 
+Note: You must produce a histogram with class boundaries labeled
+
+Use a Monte Carlo simulation (repeated random sampling) to determine: 
+
+a)	A reasonable estimate of the mean time between the first packet’s arrival and the second packet’s arrival at the destination computer 
+```{r}
+
+```
+
+b)	A reasonable estimate of the standard deviation in the difference between the two arrivals. 
+```{r}
+
+```
+
+c)	Produce a histogram of the difference in arrival times seen. 
+```{r}
+
+```
+
+d)	Determine what proportion of the time does the second packet arrive before the first packet.
+```{r}
+
+```
+
+e)  Explain how your code is doing this calculation.
+
+####################################################################################
+
+
+
+Submit you file to Assignments -> Final Exam

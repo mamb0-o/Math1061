@@ -1,0 +1,91 @@
+---
+title: "Simulation Lab Math 1061 Part 2"
+instructor: "Winona Cordua-von Specht"
+output: html_document
+---
+# Name of Student: Type your name and Student number here. 
+Alisher Shamayev A01182685
+###################################################################
+
+# Random Number Generation 
+```{r}
+library(numbers)
+library(random)
+
+```
+Random number generation is an important topic in simulations. We will do a very brief introduction into the two different kinds of generators. **You are assumed to have watched at least one of the videos on random number generation at this point.** 
+
+For historical sake we will use one of the early Pseudo Random Number Generators (PRNG), the now infamous RANDU algorithm. 
+
+$$ v_{i+1}=( 65539 v_i)\  mod\   2^{31} $$ 
+
+This is a function that generates a sequence of integers between 0 and 2^31 which look random at first glance. Many basic PRNG operate on similar sort of algorithms. The first number you input, $$v_0$$ is called the seed. Once the seed has been set, the sequence is deterministic. 
+
+While a deterministic sequence may seem bad, it is actually a handy feature as it allows us to set the seed when we are testing our simulation and get the same results while we are developing the code. For example, we want to sample from a set of integers from 1 to 100, get 4 numbers and do replacement. Notice that even when you run this code multiple times we get the same numbers because we set the seed.
+
+```{r}
+set.seed(1)
+sample(1:100,4,replace=TRUE)
+```
+
+Change the seed above and run it repeatedly. You will get a different sequence. Now run it without setting the seed and you will a different sequence each run. 
+
+## Activity 1 
+
+How do you think they are getting a different sequence each time, *i.e.*  what are they using for a seed?
+It gives different sequence each time due to not using set.seed(). Set.seed() function ensures that a sequence will be deterministic which is a good feature for testing while developing code.
+
+## Activity 2  RANDU: A bad PRNG
+In the R box below, write an R script which uses the RANDU relationship to generate a sequence of 20 pseudo random numbers. Use your student number (without the A and the leading 0's) as the seed. 
+* Notes
+  +$$ v_{i+1}=( 65539 v_i)\  mod\   2^{31} $$ 
+  + Make certain that you load up the *numbers* package to get mod 
+  
+
+```{r}
+# Write your RANDU code here. 
+set.seed(1182685)
+x<-c(1:20)
+for(i in x){
+  if(i==1) x[i]=1182685
+  else x[i]=(65539 * x[i-1])%%(2^31)
+}
+print(x)
+```
+
+You will need to do a loop to accomplish this. A short example of this is given at <https://www.datamentor.io/r-programming/for-loop/>. 
+
+Once you are convinced that your RANDU PRNG is working, read over the Wikipedia page on RANDU <https://en.wikipedia.org/wiki/RANDU> and confirm that your sequence does indeed follow the unforunately easy relationship between the newest value and the previous two. (*e.g.* $$v_{i+2}$$, is a function of  $$v_{i+1}$$ and $$v_i$$). Note that you will need to do repeated $mod(,2^{31})$ of every term to make sure no numbers exceed 2^31. 
+
+## Activity 3
+Type up what relationship is the problem in RANDU and show how your sequence of numbers confirms this. 
+I am not sure if that's a problem or an issue so i triede my Student ID and noticed all numbers turn to be odd and changed it to be evennn and all the numbers became even. This might be a problems with multiplirt and modulus i believe.
+
+
+## Mersenne Twister
+R by default uses a PRNG called the Mersenne Twister, named because of the use of a Mersenne prime in the algorithm.  More information can be found <https://en.wikipedia.org/wiki/Mersenne_Twister>. It is possible to use other methods but this is a standard that is used in many software languages and libraries. 
+
+This algorithm is much harder to explain so feel free to read over the Wikipedia page but you will definitely not be held responsible for understanding this algorithm. 
+
+
+## Testing a PRNG for randomness. 
+
+There are tests to confirm the randomness of the output of a PRNG. A common battery of tests is the Diehard  <https://en.wikipedia.org/wiki/Diehard_tests>.
+ The Wikipedia pages gives a very short explanation of each the tests. Note that these are statistical hypothesis tests which return a p-value. While it might be fun to test our RANDU generator, it appears that there is no convenient way to do this so sadly we will move on.
+ 
+ 
+## True Random Number Generators
+
+Some computations do require truly random numbers and there have been a number of methods of achieving this. One website, <http://random.org/> has been providing random numbers for many years and bases it numbers on atmospheric noise in several locations in the world. Downsides of this solution include the slowness of accessing numbers from a website and the vunerability to being hacked. This is site is likely not used for any cryptographic uses as a result. 
+
+R has a package for accessing numbers from random.org. It is, not surprisingly, the random package. The following bit of code asks for 500 random numbers from random.org. This code came from the author of the random package. It checks to see if we already have some random numbers so we don't overload the random.org server with requests.
+
+```{r}
+library(random)
+## cached data to not depend on a) a network connection
+## and b) data at random.org
+if ( !(file.exists("random.Rdata")) ) 
+{ randomOrg <- randomNumbers(n=500, min=1, max=1e6, col=2)
+ save(randomOrg, file="random.Rdata")} else {load("random.Rdata")}
+```
+ Submit this file filled out to Lab Part 2

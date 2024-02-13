@@ -1,0 +1,322 @@
+---
+title: "Simulation Lab Math 1061 Part 3"
+instructor: Winona Cordua-von Specht
+output:
+  html_document: default
+  pdf_document: default
+---
+# Name of Student: Type your name and Student number here. 
+Alisher Shamayev A01182685
+###################################################################
+
+
+From your reading you will recall that simulations are roughly broken into 3 or 4 categories
+
+1. Equation based simulations
+2. Agent Based
+3. Multiscale Simulations
+4. Monte Carlo simulations.
+
+We are going to mainly look at Monte Carlo simulations and use probability but we will try to do one simulation which is more like an agent based problem.
+
+
+
+#  Probability distributions
+
+In lecture, we saw that certain kinds of occurences could be modelled by probabilty distributions. We will now see how to model experiments described by distributions, and compute associated probabilities in R.
+
+# Discrete Distributions: Binomial, Poisson, others
+We will look at the binomial distribution as an example of discrete distributions but remember the naming scheme of each distribution is similar.
+
+We can calculate binomial probabilities in R using the dbinom function. The dbinom function is one of several in a family of functions involving binomial probabilities. Here is what the Help file tells us about these functions: 
+```{r}
+? dbinom
+```
+
+
+dbinom() returns individual binomial probabilities. For example, if we wish to simulate rolling ten dice and finding the probability of obtaining one 3, we would use the dbinom command with x=1, size=10, and prob=1/6:
+```{r}
+dbinom(1, 10, 1/6)
+```
+
+This tells us that the probability of obtaining a single 3 when we roll ten dice is 0.3230112.
+
+
+Notice that in the help file, we could also have entered a vector of quantiles instead of just a single value for x. If we enter the vector c(0:10), then we will obtain a table that gives the probabilities of obtaining x 3's, for x=0,1,2,…10.If we set 
+```{r}
+options(digits=3)
+```
+then we obtain the following probability distribution for the number of 3’s obtained when ten fair dice are rolled.
+```{r}
+dbinom(c(0:10), 10, 1/6)
+```
+
+Or in a nicer format:
+```{r}
+cbind(dbinom(c(0:10), 10, 1/6))
+```
+   
+Notice that the rows are indexed from 1 to 11, rather than the more useful indexing of 0 to 10. We can stick in a column that gives us the actual values of x, which run from 0 to 10:
+
+```{r}
+cbind(c(0:10), dbinom(c(0:10), 10, 1/6))
+```
+
+
+And we can create a probability histogram for this results using the barplot() command. Note that we need to use the names.arg argument to get labels for each of the bars:
+```{r}
+barplot(dbinom(c(0:10), 10, 1/6), names.arg =c(0:10), ylab="Probabilities", main="Probability histogram for rolls of 10 dice")
+```
+
+R also allows us to generate random numbers that follow binomial distributions. For example, if we wish to simulate rolling a die 10 times and counting the number of 3’s, we can model this by generating random numbers that follow a binomial distribution with n=10 and p=1/6. (We consider a 3 to be a success.)
+```{r}
+rbinom(1, 10, 1/6)
+```
+The number given is the number of 3's we see in a random draw of 10. 
+We could obtain a good approximation of the distribution of 3’s by running this simulation many times, say 10000. (R is a bit confusing here – we would assign the value 10 to the parameter size, and the number of simulations (in this case 10000) would be n).
+
+We don’t want R to display 10000 values in the console, so here is a command that simulates rolling a set of 10 dice 20 times, and returns the number of 3’s for each of those 20 experiments:
+```{r}
+numthrees=rbinom(20, 10, 1/6)
+numthrees
+```
+We can organize those results in a table:
+```{r}
+table(numthrees)
+```
+
+We can also convert the number of 3’s to relative frequencies by dividing the right hand side of our table by the total number of die rolls (in this case 20):
+```{r}
+table(numthrees)/20
+```
+
+## Activity 1
+
+Approximate the probability distribution for the number of 3’s obtained when rolling 10 dice with relative frequency distributions in two different ways, as follows:
+	
+a) By writing a function that simulates rolling m dice n times, using the sample() function. (You can adapt one of the functions you wrote earlier.) Your function should output a table giving the relative frequencies of obtaining different numbers of 3’s, as well as a bar plot. Run your function for m=10, n=10000 and provide a table and a bar plot.
+```{r}
+# sample() based function here
+RollSomeDicePartA=function(n,m){
+  rolls=replicate(n, sample(c(1,2,3,4,5,6),m,replace=TRUE))
+  x=colSums(as.array(rolls==3))
+  xTable=table(x)/n
+  barplot(xTable,ylab="Probabilities",main=paste("Number of 3's obtaied when rolling",m,"dice"))
+  output=list(xTable)
+  return(output)
+}
+
+RollSomeDicePartA(n=10000,m=10)
+```
+
+b) 	By writing a function that simulates rolling m dice n times, using the rbinom() function. As before, your function should output a table giving the relative frequencies, as well as a bar plot. Run your function for m=10, n=10000 and provide a table and a bar plot.
+```{r}
+# rbinom based function here. 
+RollSomeDicePartB=function(n,m){
+  rolls=replicate(n,rbinom(1,m,1/6))
+  xTable=table(rolls)/n
+  barplot(xTable,ylab="Probabilities",main=paste("Number of 3's obtaied when rolling",m,"dice"))
+  output=list(xTable)
+  return(output)
+}
+
+RollSomeDicePartB(n=10000,m=10)
+```
+Your results from a. and b. should be quite similar but not identical.
+
+How do the tables and bar plot from parts (a) and (b) compare to the exact probabilities obtained with the dbinom() function?	Answer below
+```{r}
+RollSomeDicePartC=function(n,m){
+  barplot(dbinom(c(0:10), 10, 1/6),names.arg =c(0:10),ylab="Probabilities",main=paste("Number of 3's obtaied when rolling",m,"dice"))
+  return(dbinom(c(0:10), 10, 1/6))
+}
+
+RollSomeDicePartC(n=10000,m=10)
+```
+	
+	For part a and b the bar plot shows us that when we rolled 7th times or 7th dice after it there is no more probability of gettinng 3's however with dbinom it gives us probability up to 10th which is the last dice.
+
+	
+	
+
+
+# Continuous Distributions
+Earlier, we used the sample() function in order to perform simulations. However, many experiments are modeled by continuous probability distributions such as the ones we have encountered in class. We will focus here on the simplest example – the uniform distribution. R also provides similar commands for other continuous distributions, such as the normal distribution.
+
+As before, we are going to simulate experiments and estimate probabilities using the relative frequency approach to probability. That is, we will simulate an experiment n times, and count the number of “successes” k. This will allow us to estimate the probability of the event as k/n.
+
+# Waiting for a bus ( Uniform distribution)
+
+In this experiment, we imagine a person waiting for a bus that comes very reliably every 20 minutes. (This ideal situation is not very realistic; better models exist, but we will not get into them here.) However, there’s a problem: the person waiting does not know the bus’s schedule! The person may have been lucky and arrived just before the bus came. Or, they may have just missed the last bus and will have to wait nearly 20 minutes for the next one. The amount of time the person will be waiting before the bus arrives can be modelled by a continuous uniform variable with minimum of 0 and maximum 20. 
+We can simulate a single person waiting for bus with the runif() function. Here is what R has to say about the runif() function and related commands:
+```{r}
+? runif
+```
+
+In our bus example, we wish to randomly select a single value that comes from a uniform distribution with a minimum value of 0 and a maximum value of 20 – that’s how long the person has to wait this time.
+>For Example if we run:
+> runif(n=1, min=0, max=20)
+>[1] 3.7336
+
+Here, this person was fairly lucky and only had to wait 3.7336 minutes for a bus.
+
+Technically, the runif() function is discrete and not continuous, because R (like all software) can only store finitely many digits. However, it’s pretty close and we can treat it as continuous for our purposes.
+We can simulate multiple bus-waiters by changing the first argument n. This generates a list of amounts of times that n people waited for the bus.
+
+```{r}
+options(digits=5)
+cbind(runif(n=5, min=0, max=20))
+```
+
+## Activity 2
+Generate appropriately-labelled histograms that give the frequency of waiting times for n=100,1000, and 10000 people who are waiting for a bus that comes every 20 minutes. (Note: it does not make sense to create bar graphs here, since 1000 people will quite possibly have 1000 different waiting times.) No need to get fancy with bins. Do the distributions look uniform? That is – when 100 people show up to catch the bus, were there approximately equal numbers of people waiting “short” amounts of time as “medium” and “long” amounts of time? How about when there are 10000 people?
+```{r}
+# do a run and generate the histogram
+hist(cbind(runif(n=100,min=0,max=20)))
+
+hist(cbind(runif(n=1000,min=0,max=20)))
+
+hist(cbind(runif(n=10000,min=0,max=20)))
+```
+When we increase amount of people the distribution starts to look a little uniform like for 1000 and 10000 while 100 people looks different.When there was 100 people the short amount of time was approximately the same until 5th minutes of waiting, while from 15th minutes until 20s long time, amount of people was mostly the same.
+However for 10000 people amount of people was quite the same for most of the period of the time.
+	
+** Assignment Question 1 is based loosely on the past information but is complicated by a bus that is not arriving/leaving on schedule precisely**
+
+	
+# Monte Carlo Methods
+
+> Monte Carlo methods, or Monte Carlo experiments, are a broad class of computational algorithms that rely on repeated random sampling to obtain numerical results. The underlying concept is to use randomness to solve problems that might be deterministic in principle. They are often used in physical and mathematical problems and are most useful when it is difficult or impossible to use other approaches. Monte Carlo methods are mainly used in three problem classes: optimization, numerical integration, and generating draws from a probability distribution. 
+
+> <https://en.wikipedia.org/wiki/Monte_Carlo_method>
+
+We have been doing a Monte Carlo Simulation already in the bus waiting problem.  But we will continue with more examples. We are now going to shift gears a bit and consider the problem of estimating areas of irregular shapes. Consider a 1x1 box that contains an irregular shape (hereafter “blob”), as shown below. The area of the shape is difficult to compute using standard methods – in fact, computing this area directly may be impossible. 
+
+![](images/blob-image.png)
+
+
+At first, this might seem like an entirely new topic. However, it turns out that we can estimate areas by applying the relative frequency definition of probability: that is, if we repeat an experiment n times, and an event A occurs k times, then the probability of an event A is approximately k/n. This is called the Monte Carlo Method. 
+Here’s how this works: we will impose a coordinate system on this above figure, with (0,0) on the bottom left corner of the box, and with the other three vertices of the box being at (1,0), (1,1), and (0,1). Note that the interior of the box consists of all ordered pairs (x,y), where both x and y are between 0 and 1. Next, we will simulate choosing randomly-generated ordered pairs (x,y), where again both x and y are between 0 and 1 and follow a uniform distribution. 
+```{r}
+x=runif(10)
+y=runif(10)
+x
+y
+
+#We can plot these ordered pairs:
+par(pty="s")
+plot(y~x)
+```
+
+We can do this with 10 ordered pairs, or 100, or 1000. Here is what we get when we plot 1000 randomly-generated ordered pairs:
+
+```{r}
+x=runif(1000)
+y=runif(1000)
+par(pty="s")
+plot(y~x)
+```
+
+Now let’s consider the original figure: a blob inside a 1x1 box. 
+
+![](images/blobandPlot.png)
+
+Since the ordered pairs (x,y) are randomly-generated and follow a bivariate uniform distribution, they occur more or less uniformly within the box. Therefore: the proportion of ordered pairs (x,y) that fall inside the shape is approximately equal to the proportion of the box’s area occupied by the blob. The Law of Large Numbers tells us that the more points we select, the better our estimate of the area.
+
+That is: (number of points inside blob)/(number of points inside box)≅(area of blob)/(area of box)
+
+This is the Monte Carlo Method of estimating areas.
+
+So, in our example, suppose that of our 1000 points, 427 were inside the blob. Then, since the box has area 1, then (number of points inside blob)/(number of points inside box)=427/1000≅(area of blob)/(area of box)=(area of blob)/1 and the area of the blob is 0.427.
+
+Example 7: estimating the area of a circle with radius 1
+
+Consider a circle of radius 1 centred at (0,0). This is a simple shape whose area we can compute directly, but we will use the Monte Carlo method to illustrate the procedure. 
+
+![](images/circle.png)
+
+We will situate this circle inside a box of side length 2, with vertices at (-1,-1), (-1,1), (1,1), and (1,-1). 
+We will generate 10,000 randomly-generated ordered pairs (x,y) that fit inside this box, and we will estimate the area of the circle by finding the proportion of ordered pairs that lie inside the circle.
+Note that the equation of the circle is $x^2+y^2=1$. Therefore a point lies inside the circle if $x^2+y^2<1$
+
+![](images/circlebox.png)
+
+First, we generate the ordered pairs. Note that this time, the minimum values for both x and y are -1, and the maximum values are 1 – ie, we can’t use the default values of 0 and 1.
+```{r}
+x=runif(10000, min=-1, max=1)
+y=runif(10000, min=-1, max=1)
+```
+We then create a third list of the values $x^2+y^2$:
+```{r}
+z=x^2+y^2
+```
+The z-values represent the distance of the point (x,y) from the point (0,0). They will all be between 0 and $\sqrt{2}=1.414$… (the corners of the box are a distance $ \sqrt{2}$ from (0,0)).
+Here are sample z-values:
+```{r}
+z[1:10]
+```
+ 
+Now let’s count the number of z-values that are less than 1:
+```{r}
+pointsinside=sum(z<1)
+```
+
+The Monte Carlo method tells us that  (number of points inside circle)/(number of points inside box)=
+ 
+```{r}
+ pointsratio=pointsinside/10000
+pointsratio
+```
+ 
+ =(area of circle)/(area of box)=(area of circle)/4
+
+Therefore, the area of the circle is approximately
+```{r}
+pointsratio*4
+```
+Note that the true area of the circle is πr^2=π (since r=1), which is approximately 3.14159… Pretty close!
+
+We can also plot the points that were inside the circle by finding the indices of the z-values that are less than 1, and then finding the (x,y) pairs corresponding to those indices. 
+
+```{r}
+xInsideCircle=x[z<1]
+yInsideCircle=y[z<1]
+```
+
+The first command finds the x values such that the z-values with those indices are less than 1; the second command does the same thing for the y-values.
+We can plot these new points to verify that they are indeed the ones inside the circle:
+
+```{r}
+par(pty="s")
+plot(xInsideCircle, yInsideCircle)
+```
+
+This is indeed a plot of the points inside the circle.
+
+## Activity 3
+
+	Use the Monte Carlo Method with n=10000 to estimate and plot the area of the heart with equation
+$$x^2+\left (5y/4-\sqrt{\left|x\right |}\right )^2=1$$
+
+ Note that the points (x,y) that lie inside the heart satisfy the inequality 
+ $$x^2+\left (5y/4-\sqrt{\left|x\right |}\right )^2<1$$
+ 
+A picture is included for your reference; be sure to choose a bounding box that is large enough to fit the heart, but not too large. (Answer: around 2.514)
+
+```{r}
+# Find area of the heart.
+n=10000
+x=runif(n, min=-1, max=1)
+y=runif(n, min=-1, max=1.5)
+z=x^2+(5*y/4-sqrt(abs(x)))^2
+xinsideheart=x[z<1]
+yinsideheart=y[z<1]
+plot(xinsideheart,yinsideheart)
+area=sum(z<1)/n
+area*2.5*2
+```
+ 
+![](images/heart.png)
+
+
+ Submit this file filled out to Lab Part 3 

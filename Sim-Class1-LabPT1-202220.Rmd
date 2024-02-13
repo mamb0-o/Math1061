@@ -1,0 +1,302 @@
+---
+title: "Simulation Lab Math 1061 Part 1"
+instructor: "Winona Cordua-von Specht"
+output: html_document
+---
+# Name of Student: Type your name and Student number here. 
+Alisher Shamayev A01182685
+###################################################################
+
+# Brief Lab introduction. 
+
+Notice that R code is in a small gray box. If you wish to run it, press the green arrow. The output will appear inline with the code. Note that this file type is called a R Markdown document, a fact that you may be curious about but will not affect the rest of this lab
+
+
+# Simulation in R 
+
+The purpose of this course module is to allow you to see how to use R commands (or really any programming language) to run simulations when the answer to a problem depends on probability. 
+
+In these activities, we are going to simulate experiments and estimate probabilities using the relative frequency approach to probability. Recall the relative frequency definition of probability: if we conduct an experiment n times, and an event A occurs k times, then we can estimate the probability of A as k/n. Moreover, the Law of Large Numbers states that if n is large, then this quantity k/n is close to the true probability of A. 
+
+## Basic simulations
+
+In this section, we will use the sample function to simulate simple experiments. Here is what R's help file tells us about the sample function (hint, press the green arrow/triangle):
+
+```{r}
+? sample
+```
+
+**Read the basic help file which should appear to the right.**
+ 
+ The first argument, x, is the sample we're choosing from. We represent that sample by a collection of numbers. For an experiment involving a single coin flip, our sample space is {heads, tails}. We can either represent those as the words “heads” and “tails”, or we can represent them with numbers – ie, “heads”=1, “tails”=2. We will try both versions.
+
+The second argument, n, represents the number of items we are selecting from – for instance, in our coin-flip experiment, n is the number of “heads or tails” we are choosing. Equivalently (and more intuitively) n represents the number of times we are running the experiment – for instance, the number of times we flip a coin.
+
+# Example 1: flipping a fair coin
+
+Our first experiment will simulate flipping a fair coin once. 
+Here, we are flipping the coin once, so n=1.
+To simulate the single coin-flip, type the following in the console:
+```{r}
+sample(1:2,1)
+```
+
+This tells R to select 1 item from a list of numbers that goes from 1 to 2.
+Your output will be either
+[1] 1
+or
+[1] 2
+
+indicating a result of heads (1) or tails (2). The [1] that precedes both results indicates that you just made one selection from the list {1,2}, ie, you simulated just [1] coin flip.
+
+1)  Try running that command ten times to see the results. When you run it ten times, how many heads do you get? How many tails? How can you do this easily. You probably know how to do a for loop but there is a handy command replicate which runs a command as many times as you want.
+```{r}
+? replicate
+```
+To make the random draw 10 times you can run the following. 
+
+```{r}
+replicate(10, sample(1:2,1))
+```
+
+We can also have our program return the actual result “Heads” or “Tails”. This time, instead of the list 1:2, we will use the list c(“Heads”, “Tails”).
+
+## Activity 1
+In the R box below write some code to get 10 flips of the coin but with Heads or tails being returned.
+```{r}
+# Enter your changed code here
+replicate(10,sample(c("Heads","Tails"),1))
+```
+
+
+Our coin-flipping experiment was a single line that we could easily enter into the console. However, for more complicated programs, we will want to write scripts. You have seen how to write this as a R script file but for this lab we will simply write it in an R code box. By default the function is available throughout the R Markdown file. 
+
+We will define a function called FlipOnce() to simulate a single coin flip and return either heads or tails. 
+`
+```{r}
+FlipOnce = function()
+{  HeadOrTail=sample(c("Heads", "Tails"), 1)
+   return(HeadOrTail)
+}
+```
+
+```{r}
+FlipOnce()
+```
+
+Write a script to flip a coin n times and return the results as a vector. There are several ways we can do this. One way is to call the FlipOnce() function n times, and store the results in a list. This will involve making a loop. Or you could use the replicate function. Or you can use the sample command. You can see the results of all of these below.
+
+
+In the same script window, define a new function CoinResults(n). This function will call the FlipOnce() function n times in a loop and store the results in a list called coinList. Type the following:
+```{r}
+CoinResults=function(n)
+{coinList<-c(1:n)
+  {for (i in 1:n)
+  coinList[i]=FlipOnce()
+}
+return(coinList)}
+```
+
+To run, 
+```{r}
+CoinResults(10)
+```
+
+```{r}
+replicate(10,FlipOnce())
+```
+
+Or we can take advantage of R’s built-in commands. For instance, we saw that the sample function allows us to sample multiple times, instead of just once. This will spare us the trouble of writing a loop.
+```{r}
+sample(c("Heads", "Tails"), 10, repl=T)
+```
+
+
+For computing probabilities, we are really only interested in the number of coins that came up heads and tails, not the actual list of results. We will create a third script that counts the number of heads out of n and returns the probability.
+```{r}
+ProbHeads=function(n)
+{coinList<-CoinResults(n)
+  numHeads<-sum(coinList=="Heads")
+return(numHeads/n)}
+``` 
+
+
+
+Note that if an entry on your list is “Heads”, the corresponding entry of CoinList==“Heads” is TRUE. Otherwise, it’s false. R, like all languages, assigns a value of 1 to TRUE and a value of 0 to FALSE. Therefore, the line sum(coinList=="Heads"), which adds up the entries in a list of TRUEs and FALSEs, is adding up a list of 0’s and 1’. Put another way, the third line of your ProbHeads(n) function counts the number of TRUE entries.
+
+
+If you run your ProbHeads function ten times for for n=100, you will get results like this:
+```{r}
+ProbHeads(100)
+```
+
+The result should be around 50%, which is consistent with the true probability of obtaining heads on a fair coin. But some of the results are off by a fair bit – the lowest probability is 45% and the highest is 57%. How do you expect those numbers to change when you run ProbHeads(1000), ProbHeads(10000), or ProbHeads(10000)? Try running these commands and check.
+
+## Activity 2
+Rewrite your CoinResults(n) function without using loops. Use your new CoinResults(n) function in your ProbHeads(n) function. 
+
+```{r}
+# Write your changed CoinResults here.
+CoinResults=function (n){
+  Outcome=sample(c("Heads","Tails"),n,repl=T)
+  return(Outcome)
+}
+ProbHeads=function (n){
+  coinList<-CoinResults(n)
+  numHeads<-sum(coinList=="Heads")
+  return(numHeads/n)
+}
+
+ProbHeads(100)
+```
+ 
+# Example 2: rolling a fair die
+
+In our simulations, we are often interested in returning a table of results of the following form:
+
+Result|
+-------|
+Frequency of result|						
+ 
+For instance, in the coin flip example for n=100:
+
+Result             |	Heads	| Tails
+------------------ | ------ | -----------
+Frequency of result| 	47	  | 53
+
+	
+R lets us do this very easily, by just keeping a list of results and letting us convert that list into a table. For example, suppose we roll a 6-sided die 10 times and get the following results: 3,6,3,1,2,6,4,2,1,5. We can store these results in a list and convert them into a table, as follows:
+
+```{r}
+dieList<-c(3,6,3,1,2,6,4,2,1,5)
+dieTable<-table(dieList)
+dieTable
+```
+This tells us that we have rolled two 1’s, two 2’s, two 3’s, one 4, one 5, and two sixes. 
+
+We can then create a bar graph based on this data:
+
+```{r}
+barplot(dieTable)
+``` 
+
+As always, you can customize your bar graph with labels.
+
+## Activity 3
+Write a function called RollDie(n) that simulates rolling a die n times, and returns a bar plot like the one above that gives the distribution of outcomes. The title of your bar plot should be “Distribution of outcomes of n die rolls”, where n is the actual value of n you entered. (See the paste function for help concatenating strings). Run your function for n=100, 1000, and 10000. Create all three graph, and include brief descriptions of their shapes. Are the results as expected?
+
+```{r}
+# Create RollDie(100) here
+  RollDie=function (n)
+  sample(1:6,n,rep=T)
+  n=100
+  Output=RollDie(n)
+  dieList<-Output
+  dieTable<-table(dieList)
+  
+  barplot(dieTable, main=paste("Distribution of outcomes of", n, "die rolls", sep=" "), xlab="Dice", ylab="Num of Times")
+  
+  # Create RollDie(1000) here
+  RollDie=function (n)
+  sample(1:6,n,rep=T)
+  n=1000
+  Output=RollDie(n)
+  dieList<-Output
+  dieTable<-table(dieList)
+  
+  barplot(dieTable, main=paste("Distribution of outcomes of", n, "die rolls", sep=" "), xlab="Dice", ylab="Num of Times")
+  
+  # Create RollDie(10000) here
+  RollDie=function (n)
+  sample(1:6,n,rep=T)
+  n=10000
+  Output=RollDie(n)
+  dieList<-Output
+  dieTable<-table(dieList)
+  
+  barplot(dieTable, main=paste("Distribution of outcomes of", n, "die rolls", sep=" "), xlab="Dice", ylab="Num of Times")
+	
+```
+## Activity 4
+
+Write a function called RollSomeDice(n,m) that simulates rolling m dice n times, and each time counts the number of 3’s obtained in the m dice. Your function should output a table that gives the distribution of the number of 3’s, as well as a bar plot. The title of your bar plot should be “Number of 3’s obtained in rolling m dice”, where m is the actual value of m you entered. Choose your axis labels appropriately. 
+```{r}
+# Create RollSomeDice(n,m) here
+RollSomeDice=function(n,m)
+{
+  index<- c(1:m)
+  num<-c(1:m)
+    for(i in 1:m){
+      index[i]=i
+      num[i]=sum(sample(1:6,n,repl=T)==3)
+    }
+  
+  newPlot<-barplot(num,main=paste("Number of 3 s obtained in rolling", m,"dice",sep=" "),xlab="Dices",ylab="Num of 3's", names.arg=index)
+}
+```
+
+Run your function for n=10000 and for the following values of m: 2 (roll 2 dice 10000 times), 6, 10, 100. 
+
+```{r}
+RollSomeDice(n=10000,m=2)
+```
+
+```{r}
+RollSomeDice(n=10000,m=6)
+```
+
+```{r}
+RollSomeDice(n=10000,m=10)
+```
+
+```{r}
+RollSomeDice(n=10000,m=100)
+```
+
+Looking at the 5 graphs above and typing your answers below. 
+
+a) Describe their shapes. 
+
+The more information and number of action happening the graph becomes easier to read and follow. Also after more amount of rolling dices graph starts to have differnces.
+
+
+b) Are your results as expected? Explain in a sentence or two.
+It is expected due to the expectation of having more occurances will lead to graph have different data results and easible to read.
+
+# Extra Activity: Drawing Cards
+
+We modeled coin flips and die rolls as sampling with replacement. That is, we simulated the die-roll experiment by imagining a box that contained the numbers 1, 2, 3, 4, 5, and 6, drawing a number, and then putting it back and drawing again.
+Some experiments are best modelled as sampling without replacement. Drawing cards is a common example of such an experiment. We may want to know the probability of getting 3 red cards if we draw 5 cards without replacement from a 52-card deck.
+
+As before, we use the sample function, but this time we set replace to FALSE.
+
+Write a function DrawCardsWithoutReplacement( n, m ) that simulates drawing m cards from a 52-card deck with replacement, n times. For each draw, record the number of red cards. (Think about how you want to model the card colour.) Your program should return an appropriately-labelled bar graph (m should be in the title of the graph) that gives the frequency of the number of red cards.
+
+Run your program for n=1000 and m = 1, 5, 10, 30, 50. 
+
+```{r}
+# Create DrawCardsWithoutReplacement( n, m )
+DrawCardsWithoutReplacement=function( n, m )
+{
+  index<-c(1:m)
+  Outcome<-c(1:m)
+      for(i in 1:m){
+        index[i]=i
+        Outcome[i]=sum(sample(c("Red","Black"), n,repl=T)=="Red")
+        }
+  
+  newPlot<-barplot(Outcome,main=paste("Number of reds  in drawing",m,"cards",sep=" "),xlab="Num of Cards",ylab="Num of Reds",names.arg =index)
+  return(newPlot)
+  
+}
+
+DrawCardsWithoutReplacement(n=1000,m=1)
+DrawCardsWithoutReplacement(n=1000,m=5)
+DrawCardsWithoutReplacement(n=1000,m=10)
+DrawCardsWithoutReplacement(n=1000,m=30)
+DrawCardsWithoutReplacement(n=1000,m=50)
+
+```
+
+
+ Submit this file filled out to Lab Part 1

@@ -1,0 +1,97 @@
+---
+title: "Simulation Lab Math 1061 Part 4"
+instructor: "Winona Cordua-von Specht"
+output: html_document
+---
+# Name of Student: Type your name and Student number here.  
+Alisher Shamayev A01182685
+###################################################################
+
+# 1D Random Walk
+A random walk is a simple model where the direction an object moves is based on a probability. Typically the probabilities are independent so that the probability of stepping in a particular direction does not dependent on the current location. Random walks are used in finance, physics and other fields. (see <https://en.wikipedia.org/wiki/Random_walk>) 
+
+The one dimensional random walk has a probability of moving left and right. The simplest model starts at zero and has equal probability of moving left and right. If we have a step of size 1 then the model can actually be very easily implemented as sampling from a population of {-1.1}. 
+
+```{r}
+sample(c(-1,1),1,replace=TRUE)
+```
+
+The above result says that if you started from 0 then you moved in a direction either left if you got -1  or right 
+if you got 1. Now we can model many steps by taking more than 1 sample:
+
+```{r}
+# set seed is just to guarantee you get the same result as I am discussing below
+set.seed(1)
+
+sample(c(-1,1),10,replace=TRUE)
+
+```
+
+The above result should indicate that you move left, then right then left two steps then right one then left three steps and finally right two steps. You can find out where you end by summing this. 
+
+```{r}
+# set seed is just to guarantee you get the same result as I am discussing below
+set.seed(1)
+sum(c(0,sample(c(-1,1),10,replace=TRUE)))
+
+```
+
+You see we end up at 2 positions left after 10 steps. It is possible to actually plot our motion using a handy function cumsum() which instead of providing only a single sum provides the a sum up to and including each new point. This can then be quickly plotted
+
+```{r}
+set.seed(1)
+RWpath=cumsum(c(0, sample(c(-1,1),10,replace=TRUE)))
+plot(RWpath,type="l")
+```
+
+Now get rid of the set.seed and do some exploring.
+
+## Activity 1
+1) run the above code multiple times and see if the path changes.Write your observations below:
+
+The path is actually not changing after multiple running, it is the same mid points end points and the whole path is the same. The plot actually perfectly shows the path and steps it did whether it went left or rides and of how many times it went same time to the same side.
+However code below does changes after each compilation. But still pretty easy readable for each step and end points.
+
+
+```{r}
+RWpath=cumsum(c(0, sample(c(-1,1),10,replace=TRUE)))
+plot(RWpath,type="l")
+```
+
+2) We will look at a bunch of paths. n is the number of steps in the plot. The code uses a matrix plot command. 
+Experiment with increasing n (number of steps) paying close attention to the y-axis.
+```{r}
+# code to make many paths
+n=10
+RWpath=replicate(10,cumsum(c(0, sample(c(-1,1),n,replace=TRUE))),simplify="matrix")
+matplot(x=seq(0,n),y=RWpath,type="l")
+```
+
+Describe what you observe with increasing n.
+
+With increasing n x axis stays the same while y axis having some changes with more or less sometimes equal points. Moreover, obviously there is more routes than one due to having multiple n so they all have own paths. As a good point all of them have different colors which makes it easier to follow but in crossing points its a bit challenging.Overall, still not extremely challenging to follow the route and endpoints are seems clear.
+
+
+
+
+## Activity 2
+3) Now write some code which just returns the last position after a long (1000 steps). Do 100000 runs so that you get 100000 final positions. Once you have the end points plot them using a histogram. Note it may take a little while to run these calculations. 
+```{r}
+# do 100000 runs of path length 1000 and create a histogram of the final positions. 
+RWpath=replicate(100000,sum(c(0, sample(c(-1,1),1000,replace=TRUE))))
+hist(RWpath)
+```
+
+Describe below what you observe in the histogram. It should look like some distribution you are familar with. If you consider a random walk to be a model of small random variations in some sort of measurement - say electrical signal strength - this explains the importance of this particular distribution in real things. 
+
+The main difference between plot we made before and now histogram is that in histogram we can not see the steps of path it made clearly as in plot.By the bars we can see the frequency differnce of the data, and also represents a binomial distribution in this histogram.Also we can clearly see the ranges differences between the bars,RWpaths and Frequencies.
+
+
+# Agent Based simulations
+
+Agent based simulations are bit beyond the scope of this course but we can do a toy problem which will use the 1D random walk to look at a mock spread of zombie-ism. Well you may ask yourself how your instructor would come up such a topic...
+The difference with the previous random walk is that the random walk is going to model the movement of a bunch of individuals - obviously a bad model since people don't random walk - and then we will have a bunch of individuals all moving. If they land at the same position then there will be a chance of someone becoming a zombie. So one run of this represents a single run of a bunch of agents. The rules each agent will follow will be "how to step" and "what happens if two are at the same place".
+
+Think carefully about this as it may appear in question 2 of the assignment...
+
+Submit this file filled out to Lab Part 4 
